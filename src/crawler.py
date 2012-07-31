@@ -59,7 +59,7 @@ class Crawler(object):
             try:
                 usock = self.opener.open(self.link.format(begin=self.begin + inc))
             except HTTPError as err: # the search engine banned you for a period of time
-                raise Exception(err) # for compatibility
+                raise # know about
             # now read and parse the data
             data = usock.read() # read and store the whole page (noobish)
             usock.close()
