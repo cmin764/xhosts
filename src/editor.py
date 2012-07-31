@@ -46,11 +46,13 @@ class HostsManager(object):
     """
 
     def __init__(self):
-        # check if first time to make a backup
+        # check if this is the first time, to make a backup
         index = max(HPATH.rfind("/"), # get the parent dir
                     HPATH.rfind("\\")) + 1
         newPath = HPATH[:index] + "hosts.old"
-        if not os.path.isfile(newPath): # make a copy of hosts
+        # hosts exists but hosts.old doesn't
+        if not os.path.isfile(newPath) \
+        and os.path.isfile(HPATH): # make a copy of hosts
             copyfile(HPATH, newPath) # with the name hosts.old
         self.__new_buffers()
 
@@ -64,8 +66,7 @@ class HostsManager(object):
         self.__new_buffers() # just in case if load is called again
         if not os.path.isfile(HPATH):
             # warning, file not present
-            # assuming the path is corect, we just create the file
-            open(HPATH, "w").close()
+            # no problem, write method will create one
             return
         # the file exists
         fin = open(HPATH, "r")
@@ -88,12 +89,19 @@ class HostsManager(object):
         """Add a line that redirects host `src` to `dest`
         (no direct file change).
         """
+        rcode = 1 # just add
+        if self.redir.has_key(src):
+            rcode = 2 # replace
         self.redir[src] = dest
+        return rcode
 
     def remove(self, src):
         """Remove a line."""
         # remove key, nothing happens if it's not found
-        self.redir.pop(src, None)
+        ret = self.redir.pop(src, None)
+        if ret is None:
+            return False # nothing removed
+        return ret
 
     def write(self):
         """Write changes to hosts file."""
