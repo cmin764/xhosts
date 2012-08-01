@@ -109,7 +109,10 @@ class HostsManager(object):
         # then the useful lines, we can't guess the corresponding ones
         # and also can't reuse the empty lines (after removal), because
         # the comments will become more ambiguous
-        fout = open(HPATH, "w")
+        try:
+            fout = open(HPATH, "w")
+        except IOError:
+            raise # no permissions
         for line in self.cmts:
             fout.write(line + "\n")
         for item in self.redir.iteritems():
