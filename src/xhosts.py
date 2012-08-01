@@ -23,17 +23,35 @@ import sys
 
 from editor import HostsManager
 from crawler import Crawler, HTTPError
-#from ui import Gui
+from ui import Gui
 
 
 USAGE = """
-heeeelp!
+Usage: %s [OPTION] COMMAND...
+Show and edit entries from hosts file, also search for hostnames on the web.
+
+Options:
+    -h, --help          show this help message and exit
+    -p, --power         affect the number of search results
+
+Commands:
+    list                load and print all entries from hosts
+    add SRC DEST        redirect SRC to DEST
+    remove SRC          remove SRC mapping
+    search KEY          search for KEY over the internet and print websites
+
+Report bugs to cmin764@yahoo.com
+Author: Cosmin "cmiN" Poieana
+Home page: https://github.com/cmin764/xhosts
+License: GPLv3
 """
 
 
 class ParseError(Exception):
+    """Custom error class for parsing exceptions."""
 
     def __init__(self, *args, **kwargs):
+        """Behave like the superclass."""
         super(ParseError, self).__init__(*args, **kwargs)
 
 
@@ -55,20 +73,30 @@ class Core(object):
         self.manager.load()
 
     def list_entries(self):
-        """(Re)load the current entries from hosts file and return them."""
+        """Load the current entries from hosts file and return them.
+        Returns the entries (a list of pairs).
+        """
         self.manager.load()
-        return self.manager.get_hosts().iteritems() # dictionary
+        return self.manager.get_hosts().iteritems() # [(), ...]
 
     def add_entry(self, src, dest):
-        """Add entry to hosts buffer."""
+        """Add entry to hosts buffer.
+        Returns: 1 -> if the entry was new
+                 2 -> if already there (and replaced)
+        """
         return self.manager.add(src, dest)
 
     def remove_entry(self, src):
-        """Remove entry from hosts buffer."""
+        """Remove entry from hosts buffer.
+        Returns: True -> if source found and removed
+                 False -> if source not found
+        """
         return self.manager.remove(src)
 
     def write_entries(self):
-        """Write changes (add/remove) to hosts file."""
+        """Write changes (add/remove) to hosts file.
+        Can raise IOError.
+        """
         self.manager.write()
 
     def set_key(self, key):
@@ -76,7 +104,9 @@ class Core(object):
         self.grabber.set_query(key)
 
     def search_sites(self, power=1):
-        """Retrieve sites according to key."""
+        """Retrieve sites accordingly to key.
+        Can raise HTTPError.
+        """
         # this is somehow redundant (especially with gui)
         # but only in this mode we ensure no duplicates
         for i in xrange(power): # add sum{2^k | k=t+1,t+p} sites
@@ -93,21 +123,21 @@ def main(argc, argv):
 
     Here we create the core object for the application
     that can be used by both cli and gui to edit
-    hosts file and search sites over the internet.
+    hosts file and search for sites over the internet.
     """
     core = Core() # all actions are triggered from here
     if argc == 1:
         # no arguments so create the gui
-        #gui = Gui(core=core)
-        # gui was destroyed so exit
-        return
+        gui = Gui(core=core)
+        gui.mainloop() # wait until destroyed
+        return # gui was destroyed so exit
     # arguments are present, enter cli mode
     power = 1 # default value
     at = 1 # while we have arguments to parse
     while at < argc:
         # first, parse options
         if argv[at] in ("-h", "--help"):
-            print USAGE
+            print USAGE % argv[0]
             return
         elif argv[at] in ("-p", "--power"):
             # affects the number of search results
@@ -123,7 +153,6 @@ def main(argc, argv):
             # show hosts mapping structure
             for item in core.list_entries():
                 print "%s -> %s" % item
-            at += 1
         elif argv[at] == "add":
             if at + 2 >= argc: # check for needed values
                 raise ParseError("Insufficient values to add")
@@ -170,3 +199,5 @@ if __name__ == "__main__":
         print err
     except HTTPError as err:
         print err # to many searches
+    except IOError as err:
+        print str(err) + " (use sudo/su)" # usually permission denied
