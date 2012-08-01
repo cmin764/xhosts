@@ -20,12 +20,18 @@
 
 from Tkinter import * # it's evil, I know ;[
 from tkMessageBox import showinfo, showerror # for About and exceptions
+from sys import platform
 
 from crawler import HTTPError # web searching can cause exceptions
 
 
 # some constants
-BWD = 4 # button width
+BWD = 6 # button width
+LWD = 36 # listbox width
+if "linux" in platform:
+    # best with linux X
+    BWD = 4
+    LWD = 30
 SEP = "->" # separator between source and destination
 DST = "127.0.0.1" # default destination (block)
 
@@ -45,13 +51,13 @@ class Gui(Frame):
     def widgets(self):
         """Crate and grid other widgets."""
         # create widgets
-        self.hostsBox = Listbox(self, width=30, height=5)
+        self.hostsBox = Listbox(self, width=LWD, height=5)
         self.hostsBox.bind("<<ListboxSelect>>", self.select_host)
         self.hostsScroll = Scrollbar(self, command=self.hostsBox.yview,
                                      orient=VERTICAL)
         self.hostsBox.config(yscrollcommand=self.hostsScroll.set)
-        self.srcEntry = Entry(self, width=15)
-        self.destEntry = Entry(self, width=15)
+        self.srcEntry = Entry(self, width=LWD / 2)
+        self.destEntry = Entry(self, width=LWD / 2)
         self.about = Label(self, text="A\nb\no\nu\nt", bg="orange")
         self.about.bind("<Button-1>", self.about_message)
         self.reloadButton = Button(self, text="Reload", width=BWD,
@@ -62,7 +68,7 @@ class Gui(Frame):
                                 command=self.add_host)
         self.removeButton = Button(self, text="Remove", width=BWD,
                                    command=self.remove_host)
-        self.searchEntry = Entry(self, width=20)
+        self.searchEntry = Entry(self, width=2 * LWD / 3)
         self.searchButton = Button(self, text="Search", width=BWD,
                                    command=self.search)
         self.searchBox = Listbox(self, height=5)
