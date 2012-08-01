@@ -101,6 +101,7 @@ class Core(object):
 
     def set_key(self, key):
         """Set word(s) we must search for."""
+        self.sites.clear()
         self.grabber.set_query(key)
 
     def search_sites(self, power=1):
