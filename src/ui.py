@@ -19,12 +19,15 @@
 
 
 from Tkinter import * # it's evil, I know ;[
-from tkMessageBox import showinfo # for About
+from tkMessageBox import showinfo, showerror # for About and exceptions
+
+from crawler import HTTPError # web searching can cause exceptions
 
 
 # some constants
 BWD = 4 # button width
 SEP = "->" # separator between source and destination
+DST = "127.0.0.1" # default destination (block)
 
 
 class Gui(Frame):
@@ -33,6 +36,7 @@ class Gui(Frame):
         """Create toplevel and grid the frame on it."""
         Frame.__init__(self, master)
         self.core = core # the application engine
+        self.lastKey = None # last searched query
         self.master.title("xhosts")
         self.grid(padx=margin, pady=margin)
         self.widgets()
@@ -59,8 +63,10 @@ class Gui(Frame):
         self.removeButton = Button(self, text="Remove", width=BWD,
                                    command=self.remove_host)
         self.searchEntry = Entry(self, width=20)
-        self.searchButton = Button(self, text="Search", width=BWD)
+        self.searchButton = Button(self, text="Search", width=BWD,
+                                   command=self.search)
         self.searchBox = Listbox(self, height=5)
+        self.searchBox.bind("<<ListboxSelect>>", self.select_site)
         self.searchScroll = Scrollbar(self, command=self.searchBox.yview,
                                       orient=VERTICAL)
         self.searchBox.config(yscrollcommand=self.searchScroll.set)
@@ -97,6 +103,13 @@ class Gui(Frame):
             return crtTuple[0]
         return None
 
+    def __get_selected_site(self):
+        """Return selected site's index."""
+        crtTuple = self.searchBox.curselection()
+        if len(crtTuple):
+            return crtTuple[0]
+        return None
+
     def select_host(self, event):
         """Display the selected host in the entries below."""
         index = self.__get_selected_host()
@@ -114,7 +127,10 @@ class Gui(Frame):
 
     def save_hosts(self):
         """Save the current entries to hosts file."""
-        self.core.write_entries()
+        try:
+            self.core.write_entries()
+        except IOError as err:
+            showerror("IOError", err)
 
     def add_host(self):
         """Add host (from src and entry) to memory and listbox."""
@@ -143,3 +159,29 @@ class Gui(Frame):
             item = self.hostsBox.get(index).split(SEP)
             self.core.remove_entry(item[0].strip())
             self.hostsBox.delete(index)
+
+    def search(self):
+        """Return next results if the same key is used
+        or start from the beginning if the key is changed.
+        """
+        key = self.searchEntry.get().strip()
+        if key != self.lastKey:
+            # reset the search for the new key
+            self.lastKey = key # also start from 0
+            self.core.set_key(key) # with first 2 results
+        self.searchBox.delete(0, END) # clear
+        try:
+            sites = self.core.search_sites()
+        except HTTPError as err:
+            showerror("HTTPError", err)
+            return
+        for site in sites: # insert them (contains the previous searches)
+            self.searchBox.insert(END, site)
+
+    def select_site(self, event):
+        """Called when an entry from the sites's listbox is selected."""
+        index = self.__get_selected_site()
+        site = self.searchBox.get(index) # get selected site string
+        self.__clear_entries()
+        self.srcEntry.insert(0, site)
+        self.destEntry.insert(0, DST)
