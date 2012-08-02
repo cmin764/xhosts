@@ -38,7 +38,7 @@ DST = "127.0.0.1" # default destination (block)
 
 class Gui(Frame):
 
-    def __init__(self, master=Tk(), margin=10, core=None):
+    def __init__(self, master=None, margin=10, core=None):
         """Create toplevel and grid the frame on it."""
         Frame.__init__(self, master)
         self.core = core # the application engine

@@ -41,9 +41,9 @@ Commands:
     search KEY          search for KEY over the internet and print websites
 
 Report bugs to cmin764@yahoo.com
-Author: Cosmin "cmiN" Poieana
+Author:    Cosmin "cmiN" Poieana
 Home page: https://github.com/cmin764/xhosts
-License: GPLv3
+License:   GPLv3
 """
 
 
@@ -60,7 +60,7 @@ class Core(object):
 
     Here we define methods to handle hosts file
     for services like reading, adding and removing
-    entries for redirecting (host name resolving) purposes.
+    entries for redirecting (hostname resolving) purposes.
     All this with web support, that means you can type
     a keyword and receive sites referring to it.
     """
@@ -197,8 +197,8 @@ if __name__ == "__main__":
     try:
         main(len(sys.argv), sys.argv)
     except ParseError as err:
-        print err
+        print err # invalid arguments
     except HTTPError as err:
         print err # to many searches
     except IOError as err:
-        print str(err) + " (use sudo/su)" # usually permission denied
+        print err # usually permission denied
