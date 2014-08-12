@@ -11,11 +11,9 @@ Python with Tkinter (python-tk) and access xhosts in super user mode (sudo/su)
 or allowing other users to modify hosts (Linux: sudo chmod o+w /etc/hosts,
 Windows: Run as Administrator or disable antivirus).
 
-To do:
-- a simple setup.py for "installing" the sources
 
-Contact:   cmin764@yahoo.com
+Contact:   cmin@ropython.org
 Author:    Cosmin "cmiN" Poieana
 Home page: https://github.com/cmin764/xhosts
 License:   GPLv3
-Forum:     https://rstcenter.com/forum/
+Forum:     https://rstforums.com/forum/

@@ -22,7 +22,7 @@ from Tkinter import * # it's evil, I know ;[
 from tkMessageBox import showinfo, showerror # for About and exceptions
 from sys import platform
 
-from crawler import HTTPError # web searching can cause exceptions
+from xhosts.crawler import HTTPError # web searching can cause exceptions
 
 
 # some constants

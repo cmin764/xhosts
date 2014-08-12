@@ -21,9 +21,9 @@
 
 import sys
 
-from editor import HostsManager
-from crawler import Crawler, HTTPError
-from ui import Gui
+from xhosts.editor import HostsManager
+from xhosts.crawler import Crawler, HTTPError
+from xhosts.ui import Gui
 
 
 USAGE = """
@@ -49,10 +49,6 @@ License:   GPLv3
 
 class ParseError(Exception):
     """Custom error class for parsing exceptions."""
-
-    def __init__(self, *args, **kwargs):
-        """Behave like the superclass."""
-        super(ParseError, self).__init__(*args, **kwargs)
 
 
 class Core(object):
