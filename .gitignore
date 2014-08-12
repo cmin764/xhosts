@@ -1,4 +1,4 @@
 # Ignore Python compiled objects
 *.pyc
 *.pyo
-
+*.swp
