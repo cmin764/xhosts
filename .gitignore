@@ -1,4 +1,7 @@
-# Ignore Python compiled objects
 *.pyc
 *.pyo
 *.swp
+
+xhosts.egg-info
+build
+dist
